@@ -89,6 +89,7 @@ function AppBar() {
                     >
                         {loading ? <Loading /> :
                             <>
+                            
                                 {appContext.appState.user == null ?
                                     <>
                                         <Link to='register' className='nav-link' >
@@ -99,6 +100,8 @@ function AppBar() {
                                         </Link></>
                                     :
                                     <>
+
+
                                         <Link to='user' className='nav-link' >
                                             My Details
                                         </Link>

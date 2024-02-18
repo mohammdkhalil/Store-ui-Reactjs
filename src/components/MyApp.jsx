@@ -10,8 +10,9 @@ import { createContext, useState } from "react";
 import ProductDetails from "./pages/home/ProductDetails";
 import AllUsers from "./pages/home/AllUsers";
 import AddProduct from "./pages/home/AddProduct";
-import Categories from "./pages/home/Categories";
+
 import AddCategoryPage from "./pages/categories/AddCategoryPage";
+import AllCategories from "./pages/categories/CategoriesPage";
 
 export const AuthContext = createContext(false)
 
@@ -31,7 +32,7 @@ export default function MyApp() {
                                 <Route path="ProductDetails" element={<ProductDetails />} />
                                 <Route path="AllUsers" element={<AllUsers />} />
                                 <Route path="AddProduct" element={<AddProduct />} />
-                                <Route path="Categories" element={<Categories />} />
+                                <Route path="Categories" element={<AllCategories />} />
                                 
                                 <Route path="AddCategoryPage" element={<AddCategoryPage />} />
                             

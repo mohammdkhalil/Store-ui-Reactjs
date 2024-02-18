@@ -1,29 +1,77 @@
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { Button, Table } from 'react-bootstrap';
+import Api from '../../../tools/api';
 
-// function CategoriesPage() {
-//     const [categories, setCategories] = useState([]);
+const AllCategories = () => {
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-//     useEffect(() => {
-//         axios.get('/api/categories')
-//             .then(response => {
-//                 setCategories(response.data);
-//             })
-//             .catch(error => {
-//                 console.error('حدث خطأ أثناء جلب الفئات: ', error);
-//             });
-//     }, []);
+    useEffect(() => {
+        fetchCategories();
+    }, []);
 
-//     return (
-//         <div>
-//             <h1>فئات المتجر</h1>
-//             <ul>
-//                 {categories.map(category => (
-//                     <li key={category.id}>{category.name}</li>
-//                 ))}
-//             </ul>
-//         </div>
-//     );
-// }
+    const fetchCategories = async () => {
+        try {
+            const response = await Api.fetch({
+                url: 'categories',
+                method: 'GET',
+                token: localStorage.getItem('token'),
+            });
+            setCategories(response.data);
+            setLoading(false);
+        } catch (error) {
+            setError(error);
+            setLoading(false);
+        }
+    };
 
-// export default CategoriesPage;
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
+
+    return (
+        <div>
+            <div className="main-table-containter">
+                <div className="title-table-container">
+                    <div className="subtitle">CATEGORIES</div>
+                </div>
+                <div>
+                    <Table>
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>name</th>
+                                <th>description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {categories && categories.length > 0 ? (
+                                categories.map((category, index) => {
+                                    return (
+                                        <tr key={index}>
+                                            <td>{index + 1}</td>
+                                            <td>{category.name}</td>
+                                            <td>{category.desc}</td>
+                                        </tr>
+                                    );
+                                })
+                            ) : (
+                                <tr>
+                                    <td colSpan="3">No categories found</td>
+                                </tr>
+                            )}
+                        </tbody>
+
+                    </Table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default AllCategories;
