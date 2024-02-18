@@ -35,41 +35,36 @@ const AllCategories = () => {
     }
 
     return (
-        <div>
-            <div className="main-table-containter">
-                <div className="title-table-container">
-                    <div className="subtitle">CATEGORIES</div>
-                </div>
-                <div>
-                    <Table>
-                        <thead>
-                            <tr>
-                                <th>id</th>
-                                <th>name</th>
-                                <th>description</th>
+        <div className="table-responsive">
+            <Table striped bordered hover>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        {/* <th>Action</th> */}
+                    </tr>
+                </thead>
+                <tbody>
+                    {categories && categories.length > 0 ? (
+                        categories.map((category, index) => (
+                            <tr key={index}>
+                                <td>{category.id}</td>
+                                <td>{category.name}</td>
+                                <td>{category.desc}</td>
+                                {/* <td>
+                                    <Button variant="primary">Edit</Button>{' '}
+                                    <Button variant="danger">Delete</Button>
+                                </td> */}
                             </tr>
-                        </thead>
-                        <tbody>
-                            {categories && categories.length > 0 ? (
-                                categories.map((category, index) => {
-                                    return (
-                                        <tr key={index}>
-                                            <td>{index + 1}</td>
-                                            <td>{category.name}</td>
-                                            <td>{category.desc}</td>
-                                        </tr>
-                                    );
-                                })
-                            ) : (
-                                <tr>
-                                    <td colSpan="3">No categories found</td>
-                                </tr>
-                            )}
-                        </tbody>
-
-                    </Table>
-                </div>
-            </div>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="4">No categories found</td>
+                        </tr>
+                    )}
+                </tbody>
+            </Table>
         </div>
     );
 };
