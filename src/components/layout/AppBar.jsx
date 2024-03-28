@@ -1,126 +1,108 @@
-import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import styles from './layout.module.scss'
-import { useContext, useEffect, useState } from 'react';
-import { AppContext } from './Layout';
-import { Link } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, NavLink } from 'react-router-dom';
 import { useCookies } from "react-cookie";
+import { AppContext } from './Layout';
 import Api from '../../tools/api';
 import Loading from '../shared/Loading';
+import { Navbar, Container, Nav, Form, Button } from 'react-bootstrap';
+import styles from './layout.module.scss';
+
+const getCurrentUser = (users, currentUserId) => {
+    const currentUser = users.find(user => user.id === currentUserId);
+    return currentUser ? currentUser.role : null;
+};
 
 function AppBar() {
-    // init cookies
-    const [cookie, setCookie] = useCookies('token')
+    const [users, setUsers] = useState([]);
+    const [error, setError] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
+    
+    const [search, setSearch] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [cookie, setCookie] = useCookies('token');
+    const appContext = useContext(AppContext);
+    let token;
 
-    // init app state & token
-    const appContext = useContext(AppContext)
-    let token
-
-    // init state
-    const [search, setSearch] = useState('')
-    const [loading, setLoading] = useState(false)
-
-    // check login state
     const checkLogin = async () => {
-        // init token
-        token = appContext.appState.token != null ? appContext.appState.token : cookie?.token
-
-        // check if we have token or not        
-        if (token == null || token == '') return;
-
-        // show loading
-        setLoading(true)
-
-        // get user details
-        const res = await Api.fetch({ url: 'user', token })
-
-        // check response if success => login locally        
+        token = appContext.appState.token || cookie?.token;
+        if (token == null || token === '') return;
+        setLoading(true);
+        const res = await Api.fetch({ url: 'user', token });
         if (res != null && res.email != null) {
-            appContext.login(token, res)
+            appContext.login(token, res);
+        } else {
+            appContext.logout();
+            setCookie('token', null);
         }
-        // logout locally
-        else {
-            appContext.logout()
-            setCookie('token', null)
-        }
+        setLoading(false);
+    };
 
-        // hide loading
-        setLoading(false)
-    }
     useEffect(() => {
-        checkLogin()
-    }, [])
+        checkLogin();
+    }, []);
 
-    // logout callback
+    useEffect(() => {
+        if (appContext.appState.user != null) {
+            const currentUserId = appContext.appState.user.id;
+            const currentUserRole = getCurrentUser(users, currentUserId);
+            setCurrentUser(currentUserRole);
+        }
+    }, [appContext.appState.user, users]);
+
+    const fetchUsers = async () => {
+        setLoading(true);
+        try {
+            const response = await Api.fetch({
+                url: 'users',
+                method: 'GET',
+                token: localStorage.getItem('token'),
+            });
+            setUsers(response.users);
+            setLoading(false);
+        } catch (error) {
+            setError(error);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
     const onLogout = async () => {
-        // reset cookie        
-        setCookie('token', null)
-
-        // check token
-        token = appContext.appState.token != null ? appContext.appState.token : cookie?.token
+        setCookie('token', null);
+        token = appContext.appState.token || cookie?.token;
         if (token == null) return;
-
-        // call api to remove the token
-        await Api.fetch({ method: 'PUT', url: 'logout', token })
-
-        // reset app state
-        appContext.logout()
-
-        console.log('window.location.href');//ss
-        console.log(window.location.href);
-        window.location.href = '/login'
-        console.log(window.location.href);
-    }
+        await Api.fetch({ method: 'PUT', url: 'logout', token });
+        appContext.logout();
+        window.location.href = '/login';
+    };
 
     return (
-        <Navbar expand="lg" className={styles.appbar + ' ' + "bg-body-tertiary"}>
+        <Navbar expand="lg" className={styles.appbar + ' bg-body-tertiary'}>
             <Container fluid>
-                {/* <Navbar.Brand href="/">My Store</Navbar.Brand> */}
-                <Link to='/' className='navbar-brand' >My Store</Link>
+                <Link to='/' className='navbar-brand'>My Store</Link>
                 <Navbar.Toggle aria-controls="navbarScroll" />
                 <Navbar.Collapse id="navbarScroll">
-                    <Nav
-                        className="me-auto my-2 my-lg-0"
-                        style={{ maxHeight: '100px' }}
-                        navbarScroll
-                    >
+                    <Nav className="me-auto my-2 my-lg-0" style={{ maxHeight: '100px' }} navbarScroll>
                         {loading ? <Loading /> :
                             <>
-                            
                                 {appContext.appState.user == null ?
                                     <>
-                                        <Link to='register' className='nav-link' >
-                                            Register
-                                        </Link>
-                                        <Link to='login' className='nav-link' >
-                                            Login
-                                        </Link></>
+                                        <Link to='register' className='nav-link'>Register</Link>
+                                        <Link to='login' className='nav-link'>Login</Link>
+                                    </>
                                     :
                                     <>
-
-
-                                        <Link to='user' className='nav-link' >
-                                            My Details
-                                        </Link>
-
-                                        <Link to='orders' className='nav-link' >
-                                            My Orders
-                                        </Link>
-
-                                        <Link to='Categories' className='nav-link' >
-                                            My Categories
-                                        </Link>
-
-                                        <Link to='AddCategoryPage' className='nav-link' >
-                                        AddCategoryPage
-                                        </Link>
-
-                                        <Link onClick={onLogout} className='nav-link' >
-                                            Logout
-                                        </Link>
+                                        
+                                        {currentUser === 'admin' ?(<Link to='/AdminPanel' className='nav-link'>Dashboard</Link>)
+                                          :
+                                          <>
+                                          <Link onClick={onLogout} className='nav-link'>Logout</Link>
+                                          <Link to='/user' className='nav-link'>My Details</Link>
+                                          </>
+                                          
+                                        }
                                     </>
                                 }
                             </>
@@ -132,13 +114,9 @@ function AppBar() {
                             placeholder="Search"
                             className="me-2"
                             aria-label="Search"
-                            onChange={(e) => {
-                                setSearch(e.target.value)
-                            }}
+                            onChange={(e) => {setSearch(e.target.value)}}
                         />
-                        <Button onClick={(e) => {
-                            appContext.setSearch(search)
-                        }} variant="outline-success">Search</Button>
+                        <Button onClick={(e) => appContext.setSearch(search)} variant="outline-success">Search</Button>
                     </Form>
                 </Navbar.Collapse>
             </Container>

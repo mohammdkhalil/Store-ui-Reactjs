@@ -13,6 +13,9 @@ import AddProduct from "./pages/home/AddProduct";
 
 import AddCategoryPage from "./pages/categories/AddCategoryPage";
 import AllCategories from "./pages/categories/CategoriesPage";
+import AdminPanel from "./Admin/AdminPanel";
+import AddUser from "./pages/home/AddUsers";
+import AllProduct from "./pages/home/AllProduct";
 
 export const AuthContext = createContext(false)
 
@@ -31,12 +34,16 @@ export default function MyApp() {
                                 <Route path="orders" element={<MyOrdersPage />} />
                                 <Route path="ProductDetails" element={<ProductDetails />} />
                                 <Route path="AllUsers" element={<AllUsers />} />
+                                <Route path="AddUser" element={<AddUser />} />
                                 <Route path="AddProduct" element={<AddProduct />} />
+                                <Route path="AllProduct" element={<AllProduct />} />
                                 <Route path="Categories" element={<AllCategories />} />
                                 
                                 <Route path="AddCategoryPage" element={<AddCategoryPage />} />
+                                <Route path="AdminPanel" element={<AdminPanel />} />
+                                
                             
-
+                                
 
                             </>
                             :

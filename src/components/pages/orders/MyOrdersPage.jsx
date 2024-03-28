@@ -1,23 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Button, Table, Form } from 'react-bootstrap';
+import { Button, Table, Modal, Form } from 'react-bootstrap';
 import Api from "../../../tools/api";
 
 function MyOrdersPage() {
-  const [order, setOrder] = useState({ id: 0, qty: 0 });
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [orderIdParaem, setOrderIdParaem] = useState(0);
-
-  const handleEditClick = (orderId) => {
-    setOrderIdParaem(orderId);
-  };
+  const [selectedOrder, setSelectedOrder] = useState({});
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await Api.fetch({
-          url: "orders",
+          url: 'orders',
+          method: 'GET',
           token: localStorage.getItem('token')
         });
         setOrders(response.order);
@@ -30,23 +27,10 @@ function MyOrdersPage() {
     fetchData();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await Api.fetch({
-        method: "PUT",
-        url: `orders/${orderIdParaem}`,
-        body: { products: { order } }
-      });
-      // Optionally, you can fetch the updated orders here
-    } catch (error) {
-      console.error('Error updating order: ', error);
-    };
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setOrder({ ...order, [name]: value });
+  const handleShowDetails = (orderId) => {
+    const orderToShow = orders.find(order => order.id === orderId);
+    setSelectedOrder(orderToShow);
+    setShowDetailsModal(true);
   };
 
   if (loading) {
@@ -59,13 +43,13 @@ function MyOrdersPage() {
 
   return (
     <div>
-      <h1 className="m-4" >My Orders</h1>
+      <h1 className="m-4">My Orders</h1>
       <Table striped bordered hover>
-        <thead >
+        <thead>
           <tr>
             <th>Order ID</th>
+            <th>User ID</th>
             <th>Total</th>
-            <th>Date</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -73,28 +57,30 @@ function MyOrdersPage() {
           {orders.map((order) => (
             <tr key={order.id}>
               <td>{order.id}</td>
+              <td>{order.user_id}</td>
               <td>{order.total}</td>
-              <td>{order.date}</td>
               <td>
-                <Button variant="primary" onClick={() => handleEditClick(order.id)}>Edit</Button>
+                <Button variant="info" onClick={() => handleShowDetails(order.id)}>Show Details</Button>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
-      {orderIdParaem && (
-        <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formOrderId">
-            <Form.Label>Order ID</Form.Label>
-            <Form.Control type="number" name="id" value={order.id} onChange={handleChange} />
-          </Form.Group>
-          <Form.Group controlId="formOrderQty">
-            <Form.Label>Quantity</Form.Label>
-            <Form.Control type="number" name="qty" value={order.qty} onChange={handleChange} />
-          </Form.Group>
-          <Button variant="primary" type="submit" className="mt-4">Submit</Button>
-        </Form>
-      )}
+
+      <Modal show={showDetailsModal} onHide={() => setShowDetailsModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Order Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p><strong>Order ID:</strong> {selectedOrder.id}</p>
+          <p><strong>User ID:</strong> {selectedOrder.user_id}</p>
+          <p><strong>Total:</strong> {selectedOrder.total}</p>
+          <p><strong>Date:</strong> {selectedOrder.date}</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDetailsModal(false)}>Close</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

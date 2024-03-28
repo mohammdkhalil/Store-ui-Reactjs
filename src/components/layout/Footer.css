@@ -1,0 +1,18 @@
+.footer {
+    background-color: #333;
+    /* لون الخلفية */
+    color: white;
+    /* لون النص */
+    text-align: center;
+    /* محاذاة النص */
+    padding: 10px;
+    /* تباعد داخلي */
+    position: fixed;
+    /* تثبيت ال footer في الأسفل */
+    left: 0;
+    /* تثبيت ال footer عند اليسار */
+    bottom: 0;
+    /* تثبيت ال footer في الأسفل */
+    width: 100%;
+    /* عرض ال footer */
+}

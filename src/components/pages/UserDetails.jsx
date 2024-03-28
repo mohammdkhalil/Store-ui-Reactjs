@@ -4,7 +4,22 @@ import { Card, Button } from "react-bootstrap";
 
 export default function UserDetailsPage() {
     const appContext = useContext(AppContext);
-
+    
+    
+    const getStatistics = async () => {
+        try {
+            const response = await fetch('statistics');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching statistics:', error);
+            return null;
+        }
+    };
+    
     return (
         <div className="user-details-page">
             <h1>User Details Page</h1>
@@ -16,6 +31,8 @@ export default function UserDetailsPage() {
                     </Card.Text>
                 </Card.Body>
             </Card>
+           
+
         </div>
     );
 }

@@ -1,6 +1,7 @@
 .home {
     .categories {
         margin: 5px;
+        display: flex;
         justify-content: center;
         .item {
             cursor: pointer;
@@ -19,9 +20,19 @@
         .product {
             width: 18rem;
             margin: 3px;
+            &:hover {
+                transform: scale(1.02);
+            }
             .image {
                 height: 200px;
+                width: 100%;
                 object-fit: cover;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                transition: transform 0.3s ease;
+                &:hover {
+                    transform: scale(1.02);
+                }
             }
         }
     }

@@ -4,26 +4,32 @@ import Api from "../../../tools/api";
 import { AppContext } from "../../layout/Layout";
 import Button from "react-bootstrap/Button";
 
-export default function AddCategoryPage() {
-    const [state, setState] = useState({});
+export default function AddUser() {
+    
+    const [state, setState] = useState({
+        name: '',
+        email: '',
+        password: '',
+        role: ''
+    });
+    
     const appContext = useContext(AppContext);
 
-    // دالة لإضافة فئة جديدة
-    const callAddCategory = async () => {
+    const AddUser = async () => {
         // التحقق من توفر البيانات المطلوبة
         if (
             state.name == null || state.name.length === 0 ||
-            state.desc == null || state.desc.length === 0 || 
-            state.image == null || state.image.length === 0
+            state.email == null || state.email.length === 0 || 
+            state.password == null || state.password.length === 0 
         ) {
             appContext.showPopup("Please enter all element values");
             return;
         }
-
+    
         try {
             // إرسال طلب لإضافة فئة جديدة
             const response = await Api.fetch({
-                url: "categories",
+                url: "users",
                 body: state,
                 method: "POST",
                 showPopup: appContext.showPopup,
@@ -35,47 +41,49 @@ export default function AddCategoryPage() {
             console.error(error);
             appContext.showPopup("An error occurred. Please try again later.");
         }
-        // إعادة توجيه المستخدم إلى الصفحة الرئيسية بعد إضافة الفئة بنجاح
-        window.location.href = '/'
+        // إعادة توجيه المستخدم إلى الصفحة الرئيسية بعد إضافة مستخدم بنجاح
+        window.location.href = '/AllUsers'
     };
+    
 
     return (
         <>
             <Form>
                 {/* حقول إدخال لاسم الفئة ووصفها ورابط الصورة */}
                 <Form.Group className="mb-3" controlId="formBasicName">
-                    <Form.Label>Category Name</Form.Label>
+                    <Form.Label>User Name</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Category Name"
+                        placeholder="Name"
                         onChange={(e) => {
                             setState({ ...state, name: e.target.value });
                         }}
                     />
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="formBasicDescription">
-                    <Form.Label>Category Description</Form.Label>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Email address</Form.Label>
                     <Form.Control
-                        type="text"
-                        placeholder="Category Description"
+                        type="email"
+                        placeholder="Enter email"
                         onChange={(e) => {
-                            setState({ ...state, desc: e.target.value });
+                            setState({ ...state, email: e.target.value });
                         }}
                     />
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="formBasicImage">
-                    <Form.Label>Image URL</Form.Label>
+                <Form.Group className="mb-3" controlId="formBasicPassword">
+                    <Form.Label>Password</Form.Label>
                     <Form.Control
-                        type="text"
-                        placeholder="Image URL"
+                        type="password"
+                        placeholder="Password"
                         onChange={(e) => {
-                            setState({ ...state, image: e.target.value });
+                            setState({ ...state, password: e.target.value });
                         }}
                     />
                 </Form.Group>
+
                 {/* زر لإرسال البيانات وإضافة الفئة */}
                 <Button onClick={(e) => {
-                    callAddCategory()
+                    AddUser()
                     e.preventDefault()
                 }} variant="primary" type="submit">
                     Submit
